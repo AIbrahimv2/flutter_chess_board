@@ -1,8 +1,9 @@
 import 'dart:math';
 
+import 'package:chess/chess.dart' hide State;
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:chess/chess.dart' hide State;
+
 import 'board_arrow.dart';
 import 'chess_board_controller.dart';
 import 'constants.dart';
@@ -21,6 +22,10 @@ class ChessBoard extends StatefulWidget {
   /// The color type of the board
   final BoardColor boardColor;
 
+  /// Creating custom board with a lightBoardColor and darkBoardColor
+  final MaterialColor lightSquareColor;
+  final MaterialColor darkSquareColor;
+
   final PlayerColor boardOrientation;
 
   final VoidCallback? onMove;
@@ -33,6 +38,8 @@ class ChessBoard extends StatefulWidget {
     this.size,
     this.enableUserMoves = true,
     this.boardColor = BoardColor.brown,
+    this.lightSquareColor = kDefaultLightSquareColor,
+    this.darkSquareColor = kDefaultDarkSquareColor,
     this.boardOrientation = PlayerColor.white,
     this.onMove,
     this.arrows = const [],
@@ -43,6 +50,18 @@ class ChessBoard extends StatefulWidget {
 }
 
 class _ChessBoardState extends State<ChessBoard> {
+  /// Returns square color for builder()
+  MaterialColor getColor(int row, int col) {
+    // Define your color scheme based on row and column
+    if ((row + col) % 2 == 0) {
+      // Light color for even-sum cells
+      return widget.lightSquareColor;
+    } else {
+      // Dark color for odd-sum cells
+      return widget.darkSquareColor;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Chess>(
@@ -53,10 +72,29 @@ class _ChessBoardState extends State<ChessBoard> {
           height: widget.size,
           child: Stack(
             children: [
+              /// Generating Empty Container Grid (Board) Using Custom MaterialColors
               AspectRatio(
-                child: _getBoardImage(widget.boardColor),
                 aspectRatio: 1.0,
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 8),
+                  itemBuilder: (context, index) {
+                    var row = index ~/ 8;
+                    var column = index % 8;
+
+                    final squareColor = getColor(row, column);
+
+                    return Container(
+                      color: squareColor,
+                    );
+                  },
+                  itemCount: 64,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                ),
               ),
+
+              /// Generating Grid Containing Chess Pieces
               AspectRatio(
                 aspectRatio: 1.0,
                 child: GridView.builder(
@@ -155,36 +193,6 @@ class _ChessBoardState extends State<ChessBoard> {
         );
       },
     );
-  }
-
-  /// Returns the board image
-  Image _getBoardImage(BoardColor color) {
-    switch (color) {
-      case BoardColor.brown:
-        return Image.asset(
-          "images/brown_board.png",
-          package: 'flutter_chess_board',
-          fit: BoxFit.cover,
-        );
-      case BoardColor.darkBrown:
-        return Image.asset(
-          "images/dark_brown_board.png",
-          package: 'flutter_chess_board',
-          fit: BoxFit.cover,
-        );
-      case BoardColor.green:
-        return Image.asset(
-          "images/green_board.png",
-          package: 'flutter_chess_board',
-          fit: BoxFit.cover,
-        );
-      case BoardColor.orange:
-        return Image.asset(
-          "images/orange_board.png",
-          package: 'flutter_chess_board',
-          fit: BoxFit.cover,
-        );
-    }
   }
 
   /// Show dialog when pawn reaches last square
