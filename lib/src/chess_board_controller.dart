@@ -1,25 +1,32 @@
 import 'package:chess/chess.dart';
 import 'package:flutter/material.dart';
+
 import 'constants.dart';
+import 'game_tree.dart';
 
 class ChessBoardController extends ValueNotifier<Chess> {
   late Chess game;
+  late ChessGameTree gameTree;
 
-  factory ChessBoardController() => ChessBoardController._(Chess());
+  factory ChessBoardController() =>
+      ChessBoardController._(Chess(), ChessGameTree(Chess()));
 
-  factory ChessBoardController.fromGame(Chess game) =>
-      ChessBoardController._(game);
+  factory ChessBoardController.fromGame(Chess game, ChessGameTree gameTree) =>
+      ChessBoardController._(game, gameTree);
 
-  factory ChessBoardController.fromFEN(String fen) =>
-      ChessBoardController._(Chess.fromFEN(fen));
+  factory ChessBoardController.fromFEN(String fen) => ChessBoardController._(
+      Chess.fromFEN(fen), ChessGameTree(Chess.fromFEN(fen)));
 
-  ChessBoardController._(Chess game)
-      : game = game,
+  ChessBoardController._(Chess game, ChessGameTree gameTree)
+      : this.game = game,
+        this.gameTree = gameTree,
         super(game);
 
   /// Makes move on the board
   void makeMove({required String from, required String to}) {
     game.move({"from": from, "to": to});
+    print(game.history.last.move.piece);
+    gameTree.addMove(game.history.last.move);
     notifyListeners();
   }
 
@@ -30,13 +37,21 @@ class ChessBoardController extends ValueNotifier<Chess> {
       required String to,
       required String pieceToPromoteTo}) {
     game.move({"from": from, "to": to, "promotion": pieceToPromoteTo});
+    gameTree.addMove(game.moves().last);
     notifyListeners();
   }
 
   /// Makes move on the board
   void makeMoveWithNormalNotation(String move) {
     game.move(move);
+    gameTree.addMove(game.moves().last);
     notifyListeners();
+  }
+
+  /// Sets `controller.game` to the game state saved in the GameTree's previous/parent node.
+  void goBack() {
+    gameTree.navigateToParent();
+    game = gameTree.currentNode.chess;
   }
 
   void undoMove() {
@@ -44,11 +59,13 @@ class ChessBoardController extends ValueNotifier<Chess> {
       return;
     }
     game.undo_move();
+    gameTree.removeMove();
     notifyListeners();
   }
 
   void resetBoard() {
     game.reset();
+    gameTree.reset();
     notifyListeners();
   }
 
@@ -70,7 +87,7 @@ class ChessBoardController extends ValueNotifier<Chess> {
     notifyListeners();
   }
 
-  /// Loads a PGN
+  /// Loads a FEN
   void loadFen(String fen) {
     game.load(fen);
     notifyListeners();
@@ -110,6 +127,10 @@ class ChessBoardController extends ValueNotifier<Chess> {
 
   String getFen() {
     return game.fen;
+  }
+
+  String getPGN() {
+    return game.pgn();
   }
 
   List<String?> getSan() {

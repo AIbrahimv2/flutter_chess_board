@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,19 +43,6 @@ class _HomePageState extends State<HomePage> {
             child: Center(
               child: ChessBoard(
                 controller: controller,
-                boardColor: BoardColor.orange,
-                arrows: [
-                  BoardArrow(
-                    from: 'd2',
-                    to: 'd4',
-                    //color: Colors.red.withOpacity(0.5),
-                  ),
-                  BoardArrow(
-                    from: 'e7',
-                    to: 'e5',
-                    color: Colors.red.withOpacity(0.7),
-                  ),
-                ],
                 boardOrientation: PlayerColor.white,
               ),
             ),
@@ -73,6 +61,16 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
+          IconButton(
+              onPressed: () {
+                // print(controller.gameTree
+                //     .getDownstreamMovesAlgebraic(controller.gameTree.root));
+                // setState(() {
+                //   controller.goBack();
+                //   print(controller.gameTree.currentNode.move?.toAlgebraic);
+                // });
+              },
+              icon: const Icon(FontAwesomeIcons.backward))
         ],
       ),
     );

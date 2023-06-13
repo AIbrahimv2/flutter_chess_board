@@ -19,9 +19,6 @@ class ChessBoard extends StatefulWidget {
   /// A boolean which checks if the user should be allowed to make moves
   final bool enableUserMoves;
 
-  /// The color type of the board
-  final BoardColor boardColor;
-
   /// Creating custom board with a lightBoardColor and darkBoardColor
   final MaterialColor lightSquareColor;
   final MaterialColor darkSquareColor;
@@ -37,7 +34,6 @@ class ChessBoard extends StatefulWidget {
     required this.controller,
     this.size,
     this.enableUserMoves = true,
-    this.boardColor = BoardColor.brown,
     this.lightSquareColor = kDefaultLightSquareColor,
     this.darkSquareColor = kDefaultDarkSquareColor,
     this.boardOrientation = PlayerColor.white,
