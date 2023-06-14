@@ -61,6 +61,7 @@ class ChessBoardController extends ValueNotifier<Chess> {
   void goForward() {
     gameTree.navigateToChild(0);
     game.load(gameTree.currentNode.fen);
+    notifyListeners();
   }
 
   void undoMove() {
