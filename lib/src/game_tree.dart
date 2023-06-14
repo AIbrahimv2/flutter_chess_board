@@ -1,26 +1,29 @@
 import 'package:chess/chess.dart';
 
 class GameTreeNode {
-  final Chess chess;
+  final String fen;
+  final int moveNumber;
   final Move? move;
   final List<GameTreeNode> children;
 
-  GameTreeNode(this.chess, {this.move, required this.children});
+  GameTreeNode(this.fen,
+      {required this.moveNumber, this.move, required this.children});
 }
 
 class ChessGameTree {
   late GameTreeNode root;
   late GameTreeNode currentNode;
 
-  ChessGameTree(Chess initialPosition) {
-    root = GameTreeNode(initialPosition.copy(), children: []);
+  ChessGameTree(String initialPosition) {
+    root = GameTreeNode(initialPosition, moveNumber: 1, children: []);
     currentNode = root;
   }
 
-  void addMove(Move move) {
-    Chess currentChess = currentNode.chess.copy();
+  void addMove(Move move, Chess game) {
+    String currentChessFEN = game.fen;
 
-    GameTreeNode newNode = GameTreeNode(currentChess, move: move, children: []);
+    GameTreeNode newNode = GameTreeNode(currentChessFEN,
+        moveNumber: game.move_number, move: move, children: []);
     currentNode.children.add(newNode);
     currentNode = newNode;
   }
@@ -36,14 +39,12 @@ class ChessGameTree {
   }
 
   void reset() {
-    root = GameTreeNode(Chess(), children: []);
+    root = GameTreeNode(Chess().fen, moveNumber: 1, children: []);
     currentNode = root;
   }
 
   void navigateToParent() {
-    if (currentNode.children.isNotEmpty) {
-      currentNode = _findParentNode(root, currentNode)!;
-    }
+    currentNode = _findParentNode(root, currentNode)!;
   }
 
   GameTreeNode? _findParentNode(GameTreeNode node, GameTreeNode childNode) {
@@ -84,7 +85,7 @@ class ChessGameTree {
     return moves;
   }
 
-  List<String> getDownstreamMovesAlgebraic(GameTreeNode node) {
+  List<String> getDownstreamMovesAlgebraic() {
     List<String> moves = [];
 
     void traverseTree(GameTreeNode node) {
@@ -97,7 +98,7 @@ class ChessGameTree {
       }
     }
 
-    traverseTree(node);
+    traverseTree(currentNode);
 
     return moves;
   }

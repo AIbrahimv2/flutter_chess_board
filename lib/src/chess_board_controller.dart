@@ -9,13 +9,13 @@ class ChessBoardController extends ValueNotifier<Chess> {
   late ChessGameTree gameTree;
 
   factory ChessBoardController() =>
-      ChessBoardController._(Chess(), ChessGameTree(Chess()));
+      ChessBoardController._(Chess(), ChessGameTree(Chess().fen));
 
   factory ChessBoardController.fromGame(Chess game, ChessGameTree gameTree) =>
       ChessBoardController._(game, gameTree);
 
-  factory ChessBoardController.fromFEN(String fen) => ChessBoardController._(
-      Chess.fromFEN(fen), ChessGameTree(Chess.fromFEN(fen)));
+  factory ChessBoardController.fromFEN(String fen) =>
+      ChessBoardController._(Chess.fromFEN(fen), ChessGameTree(fen));
 
   ChessBoardController._(Chess game, ChessGameTree gameTree)
       : this.game = game,
@@ -26,7 +26,7 @@ class ChessBoardController extends ValueNotifier<Chess> {
   void makeMove({required String from, required String to}) {
     game.move({"from": from, "to": to});
     print(game.history.last.move.piece);
-    gameTree.addMove(game.history.last.move);
+    gameTree.addMove(game.history.last.move, game);
     notifyListeners();
   }
 
@@ -37,21 +37,30 @@ class ChessBoardController extends ValueNotifier<Chess> {
       required String to,
       required String pieceToPromoteTo}) {
     game.move({"from": from, "to": to, "promotion": pieceToPromoteTo});
-    gameTree.addMove(game.moves().last);
+    gameTree.addMove(game.moves().last, game);
     notifyListeners();
   }
 
   /// Makes move on the board
   void makeMoveWithNormalNotation(String move) {
     game.move(move);
-    gameTree.addMove(game.moves().last);
+    gameTree.addMove(game.moves().last, game);
     notifyListeners();
   }
 
   /// Sets `controller.game` to the game state saved in the GameTree's previous/parent node.
   void goBack() {
+    print(gameTree.currentNode.fen);
     gameTree.navigateToParent();
-    game = gameTree.currentNode.chess;
+    print(gameTree.currentNode.fen);
+    game.load(gameTree.currentNode.fen);
+    // game = Chess.fromFEN(gameTree.currentNode.fen);
+    notifyListeners();
+  }
+
+  void goForward() {
+    gameTree.navigateToChild(0);
+    game.load(gameTree.currentNode.fen);
   }
 
   void undoMove() {

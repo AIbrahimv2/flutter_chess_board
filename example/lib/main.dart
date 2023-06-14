@@ -61,16 +61,28 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
-          IconButton(
-              onPressed: () {
-                // print(controller.gameTree
-                //     .getDownstreamMovesAlgebraic(controller.gameTree.root));
-                // setState(() {
-                //   controller.goBack();
-                //   print(controller.gameTree.currentNode.move?.toAlgebraic);
-                // });
-              },
-              icon: const Icon(FontAwesomeIcons.backward))
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    controller.goBack();
+                    print(controller.gameTree.getDownstreamMovesAlgebraic());
+                  });
+                },
+                icon: const Icon(FontAwesomeIcons.backward),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    controller.goForward();
+                    print(controller.gameTree.getDownstreamMovesAlgebraic());
+                  });
+                },
+                icon: const Icon(FontAwesomeIcons.forward),
+              ),
+            ],
+          ),
         ],
       ),
     );
